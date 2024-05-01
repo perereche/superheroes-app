@@ -1,28 +1,39 @@
 import React, { useState, useEffect } from "react"
 import { Hero } from "../interfaces/types";
-import { fetchHeroes } from "../services/heroesService";
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Button, Pressable } from "react-native";
+import { deleteHero, fetchHeroes } from "../services/heroesService";
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Button, Pressable, ScrollView } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { AlertMessage } from "../components/AlertMessage";
 
 
 const HeroesList: React.FC = () => {
     const [heroes, setHeroes] = useState<Hero[]>([]);
+    const [refresh, setRefresh] = useState(false);
+
+    const getHeroes = async () => {
+        setRefresh(true);
+        const heroesData = await fetchHeroes();
+        setHeroes(heroesData);
+        setRefresh(false);
+    };
+
+    const deleteHeroAlert = async (id: Hero["id"]) => {
+        await deleteHero(id);
+        getHeroes();
+    }
 
     useEffect(() => {
-        const getHeroes = async () => {
-            const heroesData = await fetchHeroes();
-            setHeroes(heroesData);
-        };
-
         getHeroes();
     }, []);
+
+
+
 
     const renderHero = ({ item }: { item: Hero }) => (
         <TouchableOpacity activeOpacity={0.6} style={styles.card}>
             <View style={styles.titleBox}>
                 <Text style={styles.title}>{item.name}</Text>
-                <TouchableOpacity onPress={() => AlertMessage("Delete " + item.name, "Are you sure?", () => console.log("Hola"))} >
+                <TouchableOpacity onPress={() => AlertMessage("Delete " + item.name, "Are you sure?", () => deleteHeroAlert(item.id))} >
                     <Ionicons name="trash-bin" size={22} color="red" />
                 </TouchableOpacity>
             </View>
@@ -36,7 +47,13 @@ const HeroesList: React.FC = () => {
     return (
         <View>
             <Text style={styles.mainTitle}>Heroes List</Text>
-            <FlatList data={heroes} renderItem={renderHero} keyExtractor={hero => hero.id.toString()} />
+            <FlatList data={heroes} renderItem={renderHero}
+                keyExtractor={hero => hero.id.toString()}
+                onRefresh={getHeroes}
+                refreshing={refresh}
+                onEndReachedThreshold={0.7}
+            />
+
         </View>
     )
 }
