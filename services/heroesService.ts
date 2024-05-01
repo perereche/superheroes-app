@@ -8,7 +8,17 @@ export const fetchHeroes = async (): Promise<Hero[]> => {
     try {
         const response = await fetch(`${API_URL_LOCAL}SuperHero`);
         const data = await response.json();
-        console.log(data);
+        return data;
+    } catch (error) {
+        console.error('Error fetching heroes:', error);
+        return [];
+    }
+}
+
+export const deleteHero = async (): Promise<Hero[]> => {
+    try {
+        const response = await fetch(`${API_URL_LOCAL}SuperHero`);
+        const data = await response.json();
         return data;
     } catch (error) {
         console.error('Error fetching heroes:', error);

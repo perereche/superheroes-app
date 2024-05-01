@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react"
 import { Hero } from "../interfaces/types";
 import { fetchHeroes } from "../services/heroesService";
-import { View, Text, FlatList, StyleSheet } from "react-native";
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Button, Pressable } from "react-native";
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { AlertMessage } from "../components/AlertMessage";
 
 
 const HeroesList: React.FC = () => {
@@ -10,7 +12,6 @@ const HeroesList: React.FC = () => {
     useEffect(() => {
         const getHeroes = async () => {
             const heroesData = await fetchHeroes();
-            console.log(heroesData);
             setHeroes(heroesData);
         };
 
@@ -18,12 +19,18 @@ const HeroesList: React.FC = () => {
     }, []);
 
     const renderHero = ({ item }: { item: Hero }) => (
-        <View style={styles.card}>
-            <Text style={styles.title}>{item.name}</Text>
+        <TouchableOpacity activeOpacity={0.6} style={styles.card}>
+            <View style={styles.titleBox}>
+                <Text style={styles.title}>{item.name}</Text>
+                <TouchableOpacity onPress={() => AlertMessage("Delete " + item.name, "Are you sure?", () => console.log("Hola"))} >
+                    <Ionicons name="trash-bin" size={22} color="red" />
+                </TouchableOpacity>
+            </View>
             <Text style={styles.name}>{item.firstName} {item.lastName}</Text>
             <Text style={styles.description}>{item.description}</Text>
             <Text style={styles.place}>{item.place}</Text>
-        </View>
+
+        </TouchableOpacity>
     );
 
     return (
@@ -36,13 +43,13 @@ const HeroesList: React.FC = () => {
 
 const styles = StyleSheet.create({
     mainTitle: {
-        fontSize: 28,
+        fontSize: 38,
         fontWeight: 'bold',
         marginBottom: 5,
         marginTop: 10,
         paddingLeft: 16,
         alignSelf: "center",
-        color: "#fffff"
+        color: "#fff",
     },
     card: {
         backgroundColor: '#fff',
@@ -56,9 +63,10 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     title: {
-        fontSize: 18,
+        fontSize: 28,
         fontWeight: 'bold',
         marginBottom: 5,
+        flex: 2
     },
     name: {
         fontSize: 16,
@@ -73,6 +81,12 @@ const styles = StyleSheet.create({
     place: {
         fontSize: 12,
         color: '#999',
-    }
+    },
+    titleBox: {
+        alignContent: "space-between",
+        flexDirection: "row",
+        alignItems: "stretch",
+    },
+
 });
 export default HeroesList;

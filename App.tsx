@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { StyleSheet, Dimensions } from 'react-native';
 
 import SearchBox from './components/SearchBox';
-import HeroesList from './components/HeroesList';
+import HeroesList from './screens/HeroesList';
 
 const screenHeight = Dimensions.get('window').height + 100;
 
