@@ -1,20 +1,26 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+
+import { Text } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { StyleSheet, Dimensions } from 'react-native';
+
+import SearchBox from './components/SearchBox';
+import HeroesList from './components/HeroesList';
+
+const screenHeight = Dimensions.get('window').height + 100;
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaView style={styles.safeArea}>
+
+      <HeroesList />
+
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  safeArea: {
+    backgroundColor: "#005",
+    minHeight: screenHeight,
+  }
 });
