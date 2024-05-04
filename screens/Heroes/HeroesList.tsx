@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from "react"
-import { Hero } from "../interfaces/types";
-import { deleteHero, fetchHeroes } from "../services/heroesService";
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Button, Pressable, ScrollView } from "react-native";
+import React, { useState, useEffect, useRef } from "react"
+import { Hero, RootStackParamList } from "../../interfaces/types";
+import { deleteHero, fetchHeroes } from "../../services/heroesService";
+import { View, Text, FlatList, StyleSheet, TouchableOpacity } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { AlertMessage } from "../components/AlertMessage";
+import { AlertMessage } from "../../components/AlertMessage";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
+type HeroesListProps = NativeStackScreenProps<RootStackParamList, "HeroesList">;
 
-const HeroesList: React.FC = () => {
+const HeroesList: React.FC<HeroesListProps> = ({ navigation }) => {
     const [heroes, setHeroes] = useState<Hero[]>([]);
     const [refresh, setRefresh] = useState(false);
+    const flatListRef = useRef<FlatList>(null);
 
     const getHeroes = async () => {
         setRefresh(true);
@@ -26,11 +29,31 @@ const HeroesList: React.FC = () => {
         getHeroes();
     }, []);
 
+    useEffect(() => {
+        const focusListener = navigation.addListener('focus', () => {
+            getHeroes(); // Asegúrate de que fetchHeroes actualiza el estado `heroes`
+        });
+        if (heroes.length > 0) {
+            // Desplazarse al final de la lista después de que se haya actualizado
+            flatListRef.current?.scrollToEnd({ animated: true });
+        }
 
+        return focusListener;
+    }, [navigation]);
 
 
     const renderHero = ({ item }: { item: Hero }) => (
-        <TouchableOpacity activeOpacity={0.6} style={styles.card}>
+        <TouchableOpacity
+            activeOpacity={0.6}
+            style={styles.card}
+            onPress={() => navigation.navigate("EditHero", {
+                itemId: item.id,
+                itemName: item.name,
+                itemFirstName: item.firstName,
+                itemLastName: item.lastName,
+                itemDescription: item.description,
+                itemPlace: item.place
+            })}>
             <View style={styles.titleBox}>
                 <Text style={styles.title}>{item.name}</Text>
                 <TouchableOpacity onPress={() => AlertMessage("Delete " + item.name, "Are you sure?", () => deleteHeroAlert(item.id))} >
@@ -40,25 +63,29 @@ const HeroesList: React.FC = () => {
             <Text style={styles.name}>{item.firstName} {item.lastName}</Text>
             <Text style={styles.description}>{item.description}</Text>
             <Text style={styles.place}>{item.place}</Text>
-
         </TouchableOpacity>
     );
 
     return (
-        <View>
-            <Text style={styles.mainTitle}>Heroes List</Text>
-            <FlatList data={heroes} renderItem={renderHero}
+        <View style={styles.mainView}>
+            <FlatList
+                ref={flatListRef}
+                data={heroes}
+                renderItem={renderHero}
                 keyExtractor={hero => hero.id.toString()}
                 onRefresh={getHeroes}
                 refreshing={refresh}
                 onEndReachedThreshold={0.7}
+                contentContainerStyle={{ paddingBottom: 40 }}
             />
-
         </View>
     )
 }
 
 const styles = StyleSheet.create({
+    mainView: {
+        backgroundColor: "#005",
+    },
     mainTitle: {
         fontSize: 38,
         fontWeight: 'bold',
@@ -67,6 +94,7 @@ const styles = StyleSheet.create({
         paddingLeft: 16,
         alignSelf: "center",
         color: "#fff",
+        paddingBottom: 20
     },
     card: {
         backgroundColor: '#fff',
