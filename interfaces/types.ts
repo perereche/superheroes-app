@@ -39,6 +39,12 @@ export type RootStackParamList = {
 
 }
 
+export type RootStackParamListLogin = {
+    HomeLogin: undefined;
+    Login: undefined;
+    Register: undefined
+}
+
 type HeroAddForm = {
     itemId?: number;
     itemName?: string;

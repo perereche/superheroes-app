@@ -1,7 +1,9 @@
 import { AddHero, Hero, SearchHero } from '../interfaces/types'
 import Toast from 'react-native-toast-message';
 
-const API_URL_LOCAL = "https://c4ea-77-21-245-244.ngrok-free.app/api/";
+import Constants from "expo-constants";
+
+const API_URL_LOCAL = Constants.expoConfig.extra.API_URL_LOCAL;
 
 
 export const showToast = (message: string[], type?: string) => {
@@ -50,7 +52,7 @@ export const createHero = async (dataHero: AddHero) => {
         return response.ok;
     } catch (error) {
         console.error(`Error creating hero:`, error);
-        showToast(["Error creating hero 🦹🏽", "error"]);
+        showToast(["Error creating hero 🦹🏽"], "error");
         return error;
     }
 }
@@ -73,7 +75,7 @@ export const updateHero = async (dataHero: Hero) => {
         return response.ok;
     } catch (error) {
         console.error(`Error updating hero:`, error);
-        showToast(["Error updating hero 🦹🏽", "error"]);
+        showToast(["Error updating hero 🦹🏽"], "error");
         return error;
     }
 }
@@ -115,6 +117,7 @@ export const fetchHeroesByField = async (searchData: SearchHero): Promise<Hero[]
         return data;
     } catch (error) {
         console.error('Error fetching heroes:', error);
+        showToast(["Error fetching heroes: 🦹🏽", "try again"], "error");
         return [];
     }
 }

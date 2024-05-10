@@ -1,22 +1,27 @@
 import React, { useState, useEffect, useRef } from "react"
 import { Hero, RootStackParamList } from "../../interfaces/types";
 import { deleteHero, fetchHeroes } from "../../services/heroesService";
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Dimensions } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { AlertMessage } from "../../components/AlertMessage";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import SearchBox from "../../components/SearchBox";
+import { useAppDispatch, useAppSelector } from "../../context/context";
+import { setHeroes } from "../../context/slices/heroesSlice";
 
 type HeroesListProps = NativeStackScreenProps<RootStackParamList, "HeroesList">;
 
+
 const HeroesList: React.FC<HeroesListProps> = ({ navigation }) => {
-    const [heroes, setHeroes] = useState<Hero[]>([]);
+    const dispatch = useAppDispatch();
+    const { heroes, filteredHeroes } = useAppSelector(state => state.heroes);
     const [refresh, setRefresh] = useState(false);
     const flatListRef = useRef<FlatList>(null);
 
     const getHeroes = async () => {
         setRefresh(true);
         const heroesData = await fetchHeroes();
-        setHeroes(heroesData);
+        dispatch(setHeroes(heroesData));
         setRefresh(false);
     };
 
@@ -68,15 +73,19 @@ const HeroesList: React.FC<HeroesListProps> = ({ navigation }) => {
 
     return (
         <View style={styles.mainView}>
+            <View>
+                <SearchBox />
+            </View>
             <FlatList
                 ref={flatListRef}
-                data={heroes}
+                data={filteredHeroes ?? heroes}
                 renderItem={renderHero}
                 keyExtractor={hero => hero.id.toString()}
                 onRefresh={getHeroes}
                 refreshing={refresh}
                 onEndReachedThreshold={0.7}
-                contentContainerStyle={{ paddingBottom: 40 }}
+                contentContainerStyle={{ paddingBottom: 40, gap: 10 }}
+                contentInset={{ bottom: 60 }}
             />
         </View>
     )
@@ -85,6 +94,7 @@ const HeroesList: React.FC<HeroesListProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
     mainView: {
         backgroundColor: "#005",
+        flex: 1
     },
     mainTitle: {
         fontSize: 38,
